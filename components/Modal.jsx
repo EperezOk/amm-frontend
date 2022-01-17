@@ -81,7 +81,8 @@ export default function Modal({ open, setOpen, setSelectedToken, liquidity = fal
                       onClick={() => {
                         setSelectedToken(token)
                         setOpen(false)
-                      }}>
+                      }}
+                      key={token.symbol}>
                       {/* <CurrencyPoundIcon className="h-6 w-6 text-yellow-500" aria-hidden="true" /> */}
                       <img className="h-6 w-6" src={token.logo} alt={token.symbol} />
                       <span className="font-semibold text-purple-900">{token.symbol}</span>

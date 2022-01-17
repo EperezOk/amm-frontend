@@ -56,6 +56,10 @@ export default function Modal({ open, setOpen }) {
                   <CurrencyPoundIcon className="h-6 w-6 text-yellow-500" aria-hidden="true" />
                   <span className="font-semibold text-purple-900">BNB</span>
                 </div>
+                <div className="w-full px-4 py-4 sm:px-6 flex gap-2 cursor-pointer hover:bg-purple-50">
+                  <CurrencyPoundIcon className="h-6 w-6 text-pink-500" aria-hidden="true" />
+                  <span className="font-semibold text-purple-900">DAI</span>
+                </div>
               </div>
               {/* Modal buttons */}
               {/* <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">

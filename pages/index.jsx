@@ -3,6 +3,7 @@ import Modal from "../components/Modal";
 import TokenInput from "../components/TokenInput";
 import { SwitchVerticalIcon } from "@heroicons/react/outline"
 import MainCard from "../components/MainCard";
+import Button from "../components/Button";
 
 export default function Home() {
 
@@ -17,6 +18,7 @@ export default function Home() {
             <SwitchVerticalIcon className="h-5 w-5" aria-hidden />
           </button>
           <TokenInput setTokenModalOpen={setTokenModalOpen} />
+          <Button>Swap</Button>
         </MainCard>
       </div>
 

@@ -8,6 +8,7 @@ import LiquidityInput from "../components/LiquidityInput";
 export default function Liquidity() {
 
   const [tokenModalOpen, setTokenModalOpen] = useState(false)
+  const [pool, setPool] = useState({ address: null, symbol: "Select a currency" })
 
   return (
     <>
@@ -15,11 +16,11 @@ export default function Liquidity() {
         <MainCard title="Liquidity" description="Add or remove liquidity from a pool">
           <div className="flex justify-between w-full">
             <span className="text-purple-700 font-semibold">Pool</span>
-            <CurrencyButton tokenName="DAI" setTokenModalOpen={setTokenModalOpen} />
+            <CurrencyButton tokenName={pool.symbol} setTokenModalOpen={setTokenModalOpen} />
           </div>
 
-          <div className="my-4 space-y-4">
-            <LiquidityInput>DAI</LiquidityInput>
+          <div className="mb-4 mt-2 space-y-4">
+            <LiquidityInput>{pool.symbol}</LiquidityInput>
             <LiquidityInput>BNB</LiquidityInput>
             <Button>Add liquidity</Button>
           </div>
@@ -29,7 +30,7 @@ export default function Liquidity() {
         </MainCard>
       </div>
 
-      <Modal open={tokenModalOpen} setOpen={setTokenModalOpen} />
+      <Modal open={tokenModalOpen} setOpen={setTokenModalOpen} setSelectedToken={setPool} liquidity />
     </>
   )
 

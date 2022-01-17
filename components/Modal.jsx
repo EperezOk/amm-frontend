@@ -2,7 +2,26 @@ import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationIcon, CurrencyPoundIcon } from '@heroicons/react/outline'
 
-export default function Modal({ open, setOpen }) {
+// Tokens from BSC testnet
+const defaultTokenList = [
+  {
+    address: null,
+    symbol: "BNB",
+    logo: "/token-logos/bnb.svg",
+  },
+  {
+    address: "0xec5dcb5dbf4b114c9d0f65bccab49ec54f6a0867",
+    symbol: "DAI",
+    logo: "/token-logos/dai.svg",
+  },
+  {
+    address: "0x78867bbeef44f2326bf8ddd1941a4439382ef2a7",
+    symbol: "BUSD",
+    logo: "/token-logos/busd.svg",
+  },
+]
+
+export default function Modal({ open, setOpen, setSelectedToken, liquidity = false }) {
   
   const cancelButtonRef = useRef(null)
 
@@ -51,34 +70,25 @@ export default function Modal({ open, setOpen }) {
                 </div>
               </div>
               {/* Token list */}
-              <div className="bg-white pb-2">
-                <div className="w-full px-4 py-4 sm:px-6 flex gap-2 cursor-pointer hover:bg-purple-50">
-                  <CurrencyPoundIcon className="h-6 w-6 text-yellow-500" aria-hidden="true" />
-                  <span className="font-semibold text-purple-900">BNB</span>
-                </div>
-                <div className="w-full px-4 py-4 sm:px-6 flex gap-2 cursor-pointer hover:bg-purple-50">
-                  <CurrencyPoundIcon className="h-6 w-6 text-pink-500" aria-hidden="true" />
-                  <span className="font-semibold text-purple-900">DAI</span>
-                </div>
+              <div className="bg-white">
+                {defaultTokenList.map(token => {
+                  if (liquidity && token.address == null)
+                    return;
+                  
+                  return (
+                    <button 
+                      className="w-full px-4 py-4 sm:px-6 flex gap-2 hover:bg-purple-50"
+                      onClick={() => {
+                        setSelectedToken(token)
+                        setOpen(false)
+                      }}>
+                      {/* <CurrencyPoundIcon className="h-6 w-6 text-yellow-500" aria-hidden="true" /> */}
+                      <img className="h-6 w-6" src={token.logo} alt={token.symbol} />
+                      <span className="font-semibold text-purple-900">{token.symbol}</span>
+                    </button>
+                  )
+}               )}
               </div>
-              {/* Modal buttons */}
-              {/* <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
-                  type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => setOpen(false)}
-                >
-                  Done
-                </button>
-                <button
-                  type="button"
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => setOpen(false)}
-                  ref={cancelButtonRef}
-                >
-                  Cancel
-                </button>
-              </div> */}
             </div>
           </Transition.Child>
         </div>

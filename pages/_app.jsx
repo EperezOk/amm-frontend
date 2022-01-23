@@ -22,8 +22,18 @@ function MyApp({ Component, pageProps }) {
   }
 
   useEffect(() => {
+    if (typeof window.ethereum === 'undefined') {
+      console.log("Please install metamask to use this website");
+      return;
+    }
     // Open popup inmediately, i just want to keep the session on refresh
     // requestAccount()
+
+    // Emmited when user connects, disconnects or change their current metamask account
+    window.ethereum.on("accountsChanged", (accounts) => {
+      const address = accounts[0]
+      setAddress(address)
+    })
   }, [])
 
   return (
@@ -31,7 +41,7 @@ function MyApp({ Component, pageProps }) {
       <button 
         className="absolute top-4 md:right-8 py-2 px-4 rounded-xl font-bold bg-purple-300 text-purple-700 hover:bg-purple-200 hover:text-purple-900"
         onClick={requestAccount}>
-        {provider ?
+        {address ?
           `${address.substring(0,5)}...${address.slice(-4)}`
         :
           "Connect wallet"

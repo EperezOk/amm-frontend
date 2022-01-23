@@ -1,6 +1,6 @@
 import CurrencyButton from "./CurrencyBtn";
 
-export default function TokenInput({ from = false, setTokenModalOpen, tokenName = "Select a currency" }) {
+export default function TokenInput({ from = false, setTokenModalOpen, tokenName = "Select a currency", onChange, value }) {
 
   return (
     <div className="relative rounded-md shadow-sm">
@@ -12,6 +12,8 @@ export default function TokenInput({ from = false, setTokenModalOpen, tokenName 
         name="price"
         id="price"
         autoComplete="off"
+        onChange={onChange}
+        value={value}
         className="focus:ring-purple-800 focus:border-purple-800 w-full pl-3 pr-40 sm:pr-36 pt-8 sm:text-sm border-purple-400 rounded-md text-purple-600 placeholder:text-purple-400"
         placeholder="0.00"
       />

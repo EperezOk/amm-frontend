@@ -5,17 +5,20 @@ import Web3Modal from "web3modal"
 
 function MyApp({ Component, pageProps }) {
 
-  const [provider, setProvider] = useState()
-  const [address, setAddress] = useState()
+  const [address, setAddress] = useState(null)
 
   async function requestAccount() {
+    if (address) {
+      setAddress(null)
+      return
+    }
+
     const web3Modal = new Web3Modal()
     try {
       const connection = await web3Modal.connect()
       const newProvider = new ethers.providers.Web3Provider(connection)
       const newAddress = await newProvider.getSigner().getAddress()
       setAddress(newAddress)
-      setProvider(newProvider)
     } catch(e) {
       console.log(e)
     }
@@ -42,7 +45,7 @@ function MyApp({ Component, pageProps }) {
         className="absolute top-4 md:right-8 py-2 px-4 rounded-xl font-bold bg-purple-300 text-purple-700 hover:bg-purple-200 hover:text-purple-900"
         onClick={requestAccount}>
         {address ?
-          `${address.substring(0,5)}...${address.slice(-4)}`
+          `Disconnect ${address.substring(0,5)}...${address.slice(-4)}`
         :
           "Connect wallet"
         }

@@ -5,6 +5,11 @@ import { SwitchVerticalIcon } from "@heroicons/react/outline"
 import MainCard from "../components/MainCard";
 import Button from "../components/Button";
 
+import { ethers } from "ethers";
+import Registry from "../contracts/Registry.json"
+
+const registryAddress = "0x00331B1a597F4CC93343dD7358C7154F3304fBd4"
+
 export default function Home() {
 
   const [fromTokenModalOpen, setFromTokenModalOpen] = useState(false)
@@ -14,8 +19,10 @@ export default function Home() {
   const [toToken, setToToken] = useState({})
   const [toValue, setToValue] = useState("")
 
+  const [fromToRate, setFromToRate] = useState()
+
   function isValidInput(input) {
-    const regex = /^[0-9\b]+$/
+    const regex = /^[0-9\b,.]+$/
     return input === '' || regex.test(input)
   }
 
@@ -49,21 +56,20 @@ export default function Home() {
       setToToken(newToken)
   }
 
-  useEffect(() => {
-    if (!toToken.symbol)
+  useEffect(async () => {
+    if (!toToken.symbol || !fromToken.symbol)
       return
     
-    // update exchange rate
-    
-  }, [fromToken])
-
-  useEffect(() => {
-    if (!fromToken.symbol)
-      return
-    
-    // update exchange rate
-    
-  }, [toToken])
+    // update fromToRate or display "Insufficient liquidity" in the button if there's no pool created or insufficient liquidity in the pool
+    const provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
+    const registry = new ethers.Contract(registryAddress, Registry.abi, provider)
+    try {
+      const exchange = await registry.getExchange(fromToken.address);
+      console.log(`Exchange for ${fromToken.symbol}: ${ethers.utils.formatUnits(exchange)}`)
+    } catch (e) {
+      console.log(e)
+    }
+  }, [fromToken, toToken])
 
   return (
     <>

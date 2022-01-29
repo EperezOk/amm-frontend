@@ -1,4 +1,4 @@
-export default function LiquidityInput({ children }) {
+export default function LiquidityInput({ children, disabled, onChange, value }) {
 
   return(
     <div className="relative rounded-md shadow-sm">
@@ -7,12 +7,15 @@ export default function LiquidityInput({ children }) {
         name="price"
         id="price"
         autoComplete="off"
-        className="focus:ring-purple-800 focus:border-purple-800 w-full pl-3 pr-20 sm:text-sm border-purple-400 rounded-md text-purple-600 placeholder:text-purple-400"
+        disabled={disabled}
+        onChange={onChange}
+        value={value}
+        className={`w-full pl-3 pr-20 sm:text-sm rounded-md ${disabled ? "border-gray-400" : "border-purple-400 focus:ring-purple-800 focus:border-purple-800 text-purple-600 placeholder:text-purple-400"}`}
         placeholder="0.00"
       />
 
       <div className="absolute bottom-2 right-3">
-        <span className="text-sm text-purple-700">{children}</span>
+        <span className={`text-sm ${disabled ? "text-gray-700" : "text-purple-700"}`}>{children}</span>
       </div>
     </div>
   )

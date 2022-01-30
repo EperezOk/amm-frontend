@@ -8,17 +8,23 @@ import LiquidityInput from "../components/LiquidityInput";
 import { ethers } from "ethers";
 import Registry from "../contracts/Registry.json"
 import Exchange from "../contracts/Exchange.json"
+import Erc20 from "../contracts/Erc20.json"
+import { useEthers } from "../context/EthersContext";
+
 const registryAddress = "0x00331B1a597F4CC93343dD7358C7154F3304fBd4"
 
 export default function Liquidity() {
 
   const [tokenModalOpen, setTokenModalOpen] = useState(false)
-  const [pool, setPool] = useState({ address: null, symbol: "Select a currency" })
+  const [pool, setPool] = useState({ address: null, symbol: "Select a currency" }) // token
   const [tokenAmount, setTokenAmount] = useState("")
   const [bnbAmount, setBnbAmount] = useState("")
+  const [lpAmount, setLpAmount] = useState("")
   const [liquidityRate, setLiquidityRate] = useState(0) // 0 = no existing pool
-  const [poolAddress, setPoolAddress] = useState(0)
+  const [poolAddress, setPoolAddress] = useState(0) // exchange
   const [loading, setLoading] = useState(false)
+
+  const { account, isValidChain, requestAccount } = useEthers() 
 
   useEffect(async () => {
     if (!pool.address)
@@ -66,25 +72,35 @@ export default function Liquidity() {
     isValidInput(e.target.value) && setBnbAmount(e.target.value)
   }
 
-  async function createPool() {
-    if (typeof window.ethereum === 'undefined') {
-      console.log("Connect your wallet to create a pool")
-      return
-    }
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+  function handleLpInput(e) {
+    isValidInput(e.target.value) && setLpAmount(e.target.value)
+  }
+
+  async function addLiquidity(createPool = false) {
+    const signer = new ethers.providers.Web3Provider(window.ethereum).getSigner()
     setLoading(true)
-    const exchange = new ethers.Contract(poolAddress, Exchange.abi, provider.getSigner())
     try {
-      // TODO: require connected wallet - useContext()!
+      if (!account || !isValidChain())
+        requestAccount()
 
-      // TODO: create Exchange
+      let exchangeAddress
 
-      // TODO: make approve
+      if (createPool) {
+        const registry = new ethers.Contract(registryAddress, Registry.abi, signer)
+        await registry.createExchange(pool.address)
+        exchangeAddress = await registry.getExchange(pool.address)
+      } else {
+        exchangeAddress = poolAddress
+      }
 
-      const token = ethers.utils.parseEther(tokenAmount)
-      const bnb = ethers.utils.parseEther(bnbAmount)
-      await exchange.addLiquidity(token, { value: bnb })
-      console.log(`Liquidity added successfully`)
+      const tokenAmt = ethers.utils.parseEther(tokenAmount)
+      const bnbAmt = ethers.utils.parseEther(bnbAmount)
+
+      const token = new ethers.Contract(pool.address, Erc20.abi, signer)
+      await token.approve(exchangeAddress, tokenAmt)
+
+      const exchange = new ethers.Contract(exchangeAddress, Exchange.abi, signer)
+      await exchange.addLiquidity(tokenAmt, { value: bnbAmt })
       setTokenAmount(0)
       setBnbAmount(0)
     } catch (e) {
@@ -93,7 +109,24 @@ export default function Liquidity() {
     setLoading(false)
   }
 
-  function checkCreatePoolEnabled() {
+  async function removeLiquidity() {
+    const signer = new ethers.providers.Web3Provider(window.ethereum).getSigner()
+    setLoading(true)
+    try {
+      if (!account || !isValidChain())
+        requestAccount()
+
+      const lps = ethers.utils.parseEther(lpAmount)
+      const exchange = new ethers.Contract(poolAddress, Exchange.abi, signer)
+      await exchange.removeLiquidity(lps)
+      setLpAmount(0)
+    } catch(e) {
+      console.log(e);
+    }
+    setLoading(false)
+  }
+
+  function checkLiquidityEnabled() {
     return loading || !pool.address || tokenAmount === "" || bnbAmount === ""
   }
 
@@ -107,16 +140,16 @@ export default function Liquidity() {
 
         <div className="mb-4 mt-2 space-y-4">
           <LiquidityInput onChange={handleTokenInput} value={tokenAmount}>{pool.symbol}</LiquidityInput>
-          <LiquidityInput disabled={liquidityRate !== 0} onChange={handleBnbInput} value={bnbAmount}>BNB</LiquidityInput>
-          {liquidityRate !== 0 ?
-            <Button disabled={loading}>Add liquidity</Button>
+          <LiquidityInput disabled={poolAddress != 0} onChange={handleBnbInput} value={bnbAmount}>BNB</LiquidityInput>
+          {poolAddress != 0 ?
+            <Button disabled={checkLiquidityEnabled()} onClick={addLiquidity}>Add liquidity</Button>
             :
-            <Button onClick={createPool} disabled={checkCreatePoolEnabled()}>Create pool</Button>
+            <Button onClick={() => addLiquidity(true)} disabled={checkLiquidityEnabled()}>Create pool</Button>
           }
         </div>
 
-        <LiquidityInput disabled={liquidityRate === 0}>LP tokens</LiquidityInput>
-        <Button disabled={liquidityRate === 0}>Remove liquidity</Button>
+        <LiquidityInput onChange={handleLpInput} value={lpAmount} disabled={poolAddress == 0}>LP tokens</LiquidityInput>
+        <Button disabled={poolAddress == 0 || lpAmount == "" || loading} onClick={removeLiquidity}>Remove liquidity</Button>
       </MainCard>
 
       <Modal open={tokenModalOpen} setOpen={setTokenModalOpen} setSelectedToken={setPool} liquidity />

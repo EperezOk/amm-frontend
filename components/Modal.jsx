@@ -1,6 +1,9 @@
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useRef } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { ExclamationIcon, CurrencyPoundIcon } from '@heroicons/react/outline'
+import { QuestionMarkCircleIcon } from "@heroicons/react/outline"
+import { useLocalStorage } from "../hooks/useStorage"
+import { ethers } from 'ethers'
+import Erc20 from "../contracts/Erc20.json"
 
 // Tokens from BSC testnet
 const defaultTokenList = [
@@ -23,11 +26,38 @@ const defaultTokenList = [
 
 export default function Modal({ open, setOpen, setSelectedToken, liquidity = false }) {
   
-  const cancelButtonRef = useRef(null)
+  const inputRef = useRef(null)
+
+  let tokenList, setTokenList
+
+  if (typeof window !== "undefined")
+    [tokenList, setTokenList] = useLocalStorage("CustomTokens", defaultTokenList)
+
+  async function handleKeyDown(e) {
+    if (e.key !== "Enter")
+      return;
+    
+    const address = inputRef.current.value
+    const matches = tokenList.filter(token => token.address === address)
+      
+    if (matches.length > 0) {
+      inputRef.current.value = ""
+      return;
+    }
+      
+    inputRef.current.disabled = true
+    const provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
+    const token = new ethers.Contract(address, Erc20.abi, provider)
+    const symbol = await token.symbol()
+    const newToken = { address, symbol }
+    setTokenList(prevTokenList => [...prevTokenList, newToken])
+    inputRef.current.value = ""
+    inputRef.current.disabled = false
+  }
 
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="fixed z-10 inset-0 overflow-y-auto" initialFocus={cancelButtonRef} onClose={setOpen}>
+      <Dialog as="div" className="fixed z-10 inset-0 overflow-y-auto" onClose={setOpen}>
         <div className="flex items-center justify-center min-h-screen text-center px-2">
           <Transition.Child
             as={Fragment}
@@ -63,15 +93,15 @@ export default function Modal({ open, setOpen, setSelectedToken, liquidity = fal
                       Select a token
                     </Dialog.Title>
                     <p className="mt-2 text-sm text-purple-700">
-                      Paste the token address or select one from the list below.
+                      Paste the token address and press enter or select one from the list below.
                     </p>
-                    <input type="text" className="mt-4 w-full rounded-md border focus:ring-purple-800 focus:border-purple-800 border-purple-400 text-purple-600 placeholder:text-purple-400" placeholder='0x000000' />
+                    <input onKeyDown={handleKeyDown} ref={inputRef} type="text" className="mt-4 w-full rounded-md border focus:ring-purple-800 focus:border-purple-800 border-purple-400 text-purple-600 placeholder:text-purple-400" placeholder='0x000000' />
                   </div>
                 </div>
               </div>
               {/* Token list */}
               <div className="bg-white">
-                {defaultTokenList.map(token => {
+                {tokenList && tokenList.map(token => {
                   if (liquidity && token.address == null)
                     return;
                   
@@ -82,9 +112,13 @@ export default function Modal({ open, setOpen, setSelectedToken, liquidity = fal
                         setSelectedToken(token)
                         setOpen(false)
                       }}
-                      key={token.symbol}>
-                      {/* <CurrencyPoundIcon className="h-6 w-6 text-yellow-500" aria-hidden="true" /> */}
-                      <img className="h-6 w-6" src={token.logo} alt={token.symbol} />
+                      key={token.address || token.symbol}
+                    >
+                      {token.logo ?
+                        <img className="h-6 w-6" src={token.logo} alt={token.symbol} />
+                        :
+                        <QuestionMarkCircleIcon className="h-6 w-6 text-purple-400" aria-hidden="true" />
+                      }
                       <span className="font-semibold text-purple-900">{token.symbol}</span>
                     </button>
                   )

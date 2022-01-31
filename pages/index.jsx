@@ -8,7 +8,7 @@ import Button from "../components/Button";
 import { ethers } from "ethers";
 import Registry from "../contracts/Registry.json"
 
-const registryAddress = "0x00331B1a597F4CC93343dD7358C7154F3304fBd4"
+const registryAddress = "0x3A9AE8d612dAF0C2fc0D3d4682f4166b6F5577a6"
 
 export default function Home() {
 

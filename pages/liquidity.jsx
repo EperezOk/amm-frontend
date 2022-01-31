@@ -11,7 +11,7 @@ import Exchange from "../contracts/Exchange.json"
 import Erc20 from "../contracts/Erc20.json"
 import { useEthers } from "../context/EthersContext";
 
-const registryAddress = "0x00331B1a597F4CC93343dD7358C7154F3304fBd4"
+const registryAddress = "0x3A9AE8d612dAF0C2fc0D3d4682f4166b6F5577a6"
 
 export default function Liquidity() {
 
@@ -48,7 +48,6 @@ export default function Liquidity() {
     const exchange = new ethers.Contract(exchangeAddress, Exchange.abi, provider)
     try {
       const rate = ethers.utils.formatUnits(await exchange.addLiquidityRate())
-      console.log(`Rate is ${rate}`)
       setLiquidityRate(rate)
     } catch (e) {
       console.log(e)
@@ -56,7 +55,7 @@ export default function Liquidity() {
   }, [pool])
 
   useEffect(() => {
-    liquidityRate !== 0 && setBnbAmount(tokenAmount / liquidityRate)
+    liquidityRate !== 0 && setBnbAmount((tokenAmount / liquidityRate).toString())
   }, [tokenAmount])
 
   function isValidInput(input) {
@@ -76,18 +75,19 @@ export default function Liquidity() {
     isValidInput(e.target.value) && setLpAmount(e.target.value)
   }
 
-  async function addLiquidity(createPool = false) {
+  async function addLiquidity(createPool) {
     const signer = new ethers.providers.Web3Provider(window.ethereum).getSigner()
     setLoading(true)
     try {
       if (!account || !isValidChain())
         requestAccount()
 
-      let exchangeAddress
+      let exchangeAddress, tx
 
       if (createPool) {
         const registry = new ethers.Contract(registryAddress, Registry.abi, signer)
-        await registry.createExchange(pool.address)
+        tx = await registry.createExchange(pool.address)
+        await tx.wait()
         exchangeAddress = await registry.getExchange(pool.address)
       } else {
         exchangeAddress = poolAddress
@@ -97,7 +97,8 @@ export default function Liquidity() {
       const bnbAmt = ethers.utils.parseEther(bnbAmount)
 
       const token = new ethers.Contract(pool.address, Erc20.abi, signer)
-      await token.approve(exchangeAddress, tokenAmt)
+      tx = await token.approve(exchangeAddress, tokenAmt)
+      await tx.wait()
 
       const exchange = new ethers.Contract(exchangeAddress, Exchange.abi, signer)
       await exchange.addLiquidity(tokenAmt, { value: bnbAmt })
@@ -142,7 +143,7 @@ export default function Liquidity() {
           <LiquidityInput onChange={handleTokenInput} value={tokenAmount}>{pool.symbol}</LiquidityInput>
           <LiquidityInput disabled={poolAddress != 0} onChange={handleBnbInput} value={bnbAmount}>BNB</LiquidityInput>
           {poolAddress != 0 ?
-            <Button disabled={checkLiquidityEnabled()} onClick={addLiquidity}>Add liquidity</Button>
+            <Button disabled={checkLiquidityEnabled()} onClick={() => addLiquidity(false)}>Add liquidity</Button>
             :
             <Button onClick={() => addLiquidity(true)} disabled={checkLiquidityEnabled()}>Create pool</Button>
           }

@@ -11,7 +11,7 @@ import Exchange from "../contracts/Exchange.json"
 import Erc20 from "../contracts/Erc20.json"
 import { useEthers } from "../context/EthersContext";
 
-const registryAddress = "0x3A9AE8d612dAF0C2fc0D3d4682f4166b6F5577a6"
+const registryAddress = "0xDEa3108cdeeC65712606bc692A173A983435223e"
 
 export default function Liquidity() {
 
@@ -24,13 +24,14 @@ export default function Liquidity() {
   const [poolAddress, setPoolAddress] = useState(0) // exchange
   const [loading, setLoading] = useState(false)
 
-  const { account, isValidChain, requestAccount } = useEthers() 
+  const { account, isValidChain, requestAccount } = useEthers()
+
+  const provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
 
   useEffect(async () => {
     if (!pool.address)
       return
 
-    const provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
     const registry = new ethers.Contract(registryAddress, Registry.abi, provider)
     let exchangeAddress
     try {
@@ -57,6 +58,16 @@ export default function Liquidity() {
   useEffect(() => {
     liquidityRate !== 0 && setBnbAmount((tokenAmount / liquidityRate).toString())
   }, [tokenAmount])
+
+  async function refreshRate() {
+    const exchange = new ethers.Contract(poolAddress, Exchange.abi, provider)
+    try {
+      const rate = ethers.utils.formatUnits(await exchange.addLiquidityRate())
+      setLiquidityRate(rate)
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   function isValidInput(input) {
     const regex = /^[0-9\b,.]+$/
@@ -107,6 +118,7 @@ export default function Liquidity() {
     } catch (e) {
       console.log(e)
     }
+    refreshRate()
     setLoading(false)
   }
 

@@ -1,11 +1,14 @@
 import CurrencyButton from "./CurrencyBtn";
 
-export default function TokenInput({ from = false, setTokenModalOpen, tokenName = "Select a currency", onChange, value }) {
+export default function TokenInput({ from = false, setTokenModalOpen, tokenName = "Select a currency", onChange, value, balance }) {
 
   return (
     <div className="relative rounded-md shadow-sm">
       <span className="absolute top-1 left-3 text-purple-500 font-semibold sm:text-sm">
         { from ? "From" : "To"}
+      </span>
+      <span className="absolute top-1 right-3 text-purple-300 font-semibold sm:text-sm">
+        Balance: {balance ? balance.toFixed(4) : "..."}
       </span>
       <input
         type="text"

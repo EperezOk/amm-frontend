@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Modal from "../components/Modal";
 import TokenInput from "../components/TokenInput";
 import { SwitchVerticalIcon } from "@heroicons/react/outline"
@@ -16,7 +16,7 @@ const registryAddress = "0xDEa3108cdeeC65712606bc692A173A983435223e"
 export default function Home() {
 
   const [fromTokenModalOpen, setFromTokenModalOpen] = useState(false)
-  const [fromToken, setFromToken] = useState({ address: null, symbol: "BNB" })
+  const [fromToken, setFromToken] = useState({ address: 0, symbol: "BNB" })
   const [fromValue, setFromValue] = useState("")
   const [toTokenModalOpen, setToTokenModalOpen] = useState(false)
   const [toToken, setToToken] = useState({})
@@ -104,9 +104,9 @@ export default function Home() {
   async function refreshRate() {
     let rate
 
-    if (!fromToken.address)
+    if (fromToken.address === 0)
       rate = await getRate(toToken, "ethToToken")
-    else if (!toToken.address)
+    else if (toToken.address === 0)
       rate = await getRate(fromToken, "tokenToEth")
     else 
       rate = await getRate(fromToken, "tokenToToken")
@@ -116,7 +116,7 @@ export default function Home() {
 
   function getMinAmount(amount) {
     const slipperage = 0.1
-    const minAmount = (amount * (1-slipperage)).toString()
+    const minAmount = (amount * (1-slipperage)).toFixed(10).toString()
     return ethers.utils.parseEther(minAmount)
   }
 
@@ -130,9 +130,9 @@ export default function Home() {
       const exchange = new ethers.Contract(exchangeAddress, Exchange.abi, signer)
       let tx
 
-      if (!fromToken.address)
+      if (fromToken.address === 0)
         await exchange.ethToTokenSwap(getMinAmount(toValue))
-      else if (!toToken.address) {
+      else if (toToken.address === 0) {
         const token = new ethers.Contract(fromToken.address, Erc20.abi, signer)
         tx = await token.approve(exchangeAddress, ethers.utils.parseEther(fromValue))
         await tx.wait()
@@ -149,7 +149,7 @@ export default function Home() {
       setToValue(0)
     } catch (e) {
       console.log(e)
-      if (e.data.message === 'execution reverted: insufficient output amount')
+      if (e.data && e.data.message === 'execution reverted: insufficient output amount')
         console.log("Insufficient liquidity for this trade") // display notification
     }
     refreshRate()
@@ -168,11 +168,11 @@ export default function Home() {
   return (
     <>
       <MainCard title="Swap" description="Trade tokens in an instant">  
-        <TokenInput from tokenName={fromToken.symbol} setTokenModalOpen={setFromTokenModalOpen} onChange={handleFromInput} value={fromValue} />
+        <TokenInput from token={fromToken} setTokenModalOpen={setFromTokenModalOpen} onChange={handleFromInput} value={fromValue} />
         <button className="p-3 rounded-full bg-purple-300 text-purple-700 hover:bg-purple-200 hover:text-purple-900" onClick={switchFromTo}>
           <SwitchVerticalIcon className="h-5 w-5" aria-hidden />
         </button>
-        <TokenInput tokenName={toToken.symbol} setTokenModalOpen={setToTokenModalOpen} onChange={handleToInput} value={toValue} />
+        <TokenInput token={toToken} setTokenModalOpen={setToTokenModalOpen} onChange={handleToInput} value={toValue} />
         {fromToRate == 0 ?
           <Button disabled>No pool for this trade</Button>
           :

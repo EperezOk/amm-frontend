@@ -3,7 +3,7 @@ import Link from "next/link"
 export default function MainCard({ title, description, children }) {
 
   return (
-    <div className="mt-4 md:mt-0">
+    <div className="mt-12 md:mt-0">
       {/* Select option */}
       <div className="border border-purple-900 rounded-tl-lg rounded-tr-lg border-opacity-50 grid grid-cols-2">
         <Link href="/">

@@ -1,15 +1,14 @@
 import CurrencyButton from "./CurrencyBtn";
+import TokenBalance from "./TokenBalance";
 
-export default function TokenInput({ from = false, setTokenModalOpen, tokenName = "Select a currency", onChange, value, balance }) {
+export default function TokenInput({ from = false, setTokenModalOpen, token, onChange, value }) {
 
   return (
     <div className="relative rounded-md shadow-sm">
       <span className="absolute top-1 left-3 text-purple-500 font-semibold sm:text-sm">
         { from ? "From" : "To"}
       </span>
-      <span className="absolute top-1 right-3 text-purple-300 font-semibold sm:text-sm">
-        Balance: {balance ? balance.toFixed(4) : "..."}
-      </span>
+      <TokenBalance tokenAddress={token.address} className="absolute top-1 right-3" />
       <input
         type="text"
         name="price"
@@ -22,7 +21,7 @@ export default function TokenInput({ from = false, setTokenModalOpen, tokenName 
       />
 
       <div className="absolute bottom-1 right-2">
-        <CurrencyButton tokenName={tokenName} setTokenModalOpen={setTokenModalOpen} />
+        <CurrencyButton tokenName={token.symbol} setTokenModalOpen={setTokenModalOpen} />
       </div>
     </div>
   )

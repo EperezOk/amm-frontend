@@ -21,7 +21,7 @@ export default function Liquidity() {
   const [bnbAmount, setBnbAmount] = useState("")
   const [lpAmount, setLpAmount] = useState("")
   const [liquidityRate, setLiquidityRate] = useState(0) // 0 = no existing pool
-  const [poolAddress, setPoolAddress] = useState(0) // exchange
+  const [poolAddress, setPoolAddress] = useState() // exchange
   const [loading, setLoading] = useState(false)
 
   const { account, isValidChain, requestAccount } = useEthers()
@@ -151,18 +151,20 @@ export default function Liquidity() {
           <CurrencyButton tokenName={pool.symbol} setTokenModalOpen={setTokenModalOpen} />
         </div>
 
-        <div className="mb-4 mt-2 space-y-4">
-          <LiquidityInput onChange={handleTokenInput} value={tokenAmount}>{pool.symbol}</LiquidityInput>
-          <LiquidityInput disabled={poolAddress != 0} onChange={handleBnbInput} value={bnbAmount}>BNB</LiquidityInput>
-          {poolAddress != 0 ?
+        <div>
+          <LiquidityInput onChange={handleTokenInput} value={tokenAmount} tokenAddress={pool.address}>{pool.symbol}</LiquidityInput>
+          <LiquidityInput disabled={poolAddress} onChange={handleBnbInput} value={bnbAmount} tokenAddress={0}>BNB</LiquidityInput>
+          {poolAddress ?
             <Button disabled={checkLiquidityEnabled()} onClick={() => addLiquidity(false)}>Add liquidity</Button>
             :
             <Button onClick={() => addLiquidity(true)} disabled={checkLiquidityEnabled()}>Create pool</Button>
           }
         </div>
 
-        <LiquidityInput onChange={handleLpInput} value={lpAmount} disabled={poolAddress == 0}>LP tokens</LiquidityInput>
-        <Button disabled={poolAddress == 0 || lpAmount == "" || loading} onClick={removeLiquidity}>Remove liquidity</Button>
+        <div>
+          <LiquidityInput onChange={handleLpInput} value={lpAmount} disabled={!poolAddress} tokenAddress={poolAddress}>LP tokens</LiquidityInput>
+          <Button disabled={!poolAddress || lpAmount == "" || loading} onClick={removeLiquidity}>Remove liquidity</Button>
+        </div>
       </MainCard>
 
       <Modal open={tokenModalOpen} setOpen={setTokenModalOpen} setSelectedToken={setPool} liquidity />

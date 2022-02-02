@@ -176,7 +176,7 @@ export default function Home() {
         {fromToRate == 0 ?
           <Button disabled>No pool for this trade</Button>
           :
-          <Button disabled={!(fromValue > 0 && toValue > 0) || loading} onClick={swapToken}>
+          <Button loading={loading} disabled={!(fromValue > 0 && toValue > 0) || loading} onClick={swapToken}>
             Swap
           </Button>
         }

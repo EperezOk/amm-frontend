@@ -1,6 +1,6 @@
 import { Fragment, useRef } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { QuestionMarkCircleIcon } from "@heroicons/react/outline"
+import { QuestionMarkCircleIcon, TrashIcon } from "@heroicons/react/outline"
 import { useLocalStorage } from "../hooks/useStorage"
 import { ethers } from 'ethers'
 import Erc20 from "../contracts/Erc20.json"
@@ -55,6 +55,19 @@ export default function Modal({ open, setOpen, setSelectedToken, liquidity = fal
     inputRef.current.disabled = false
   }
 
+  function handleCurrencyClick(e, token) {
+    if (e.target.nodeName === "path" || e.target.nodeName === "svg")
+      removeCurrency(token.address)
+    else {
+      setSelectedToken(token)
+      setOpen(false)
+    }
+  }
+
+  function removeCurrency(address) {
+    setTokenList(prevTokenList => prevTokenList.filter(token => token.address !== address))
+  }
+
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="fixed z-10 inset-0 overflow-y-auto" onClose={setOpen}>
@@ -93,7 +106,7 @@ export default function Modal({ open, setOpen, setSelectedToken, liquidity = fal
                       Select a token
                     </Dialog.Title>
                     <p className="mt-2 text-sm text-purple-700">
-                      Paste the token address and press enter or select one from the list below.
+                      Paste the token address and press enter, or select one from the list below.
                     </p>
                     <input onKeyDown={handleKeyDown} ref={inputRef} type="text" className="mt-4 w-full rounded-md border focus:ring-purple-800 focus:border-purple-800 border-purple-400 text-purple-600 placeholder:text-purple-400" placeholder='0x000000' />
                   </div>
@@ -107,19 +120,24 @@ export default function Modal({ open, setOpen, setSelectedToken, liquidity = fal
                   
                   return (
                     <button 
-                      className="w-full px-4 py-4 sm:px-6 flex gap-2 hover:bg-purple-50"
-                      onClick={() => {
-                        setSelectedToken(token)
-                        setOpen(false)
-                      }}
+                      className="w-full px-4 py-4 sm:px-6 flex justify-between items-center hover:bg-purple-50"
+                      onClick={(e) => handleCurrencyClick(e, token)}
                       key={token.address || token.symbol}
                     >
-                      {token.logo ?
-                        <img className="h-6 w-6" src={token.logo} alt={token.symbol} />
-                        :
-                        <QuestionMarkCircleIcon className="h-6 w-6 text-purple-400" aria-hidden="true" />
-                      }
-                      <span className="font-semibold text-purple-900">{token.symbol}</span>
+                      <div className='flex gap-3 items-center'>
+                        {token.logo ?
+                          <img className="h-6 w-6" src={token.logo} alt={token.symbol} />
+                          :
+                          <QuestionMarkCircleIcon className="h-6 w-6 text-purple-400" aria-hidden="true" />
+                        }
+                        <div className="grid grid-cols-1 place-items-start">
+                          <span className="font-semibold text-purple-900 self-start">{token.symbol}</span>
+                          {token.address &&
+                            <span className="text-purple-300 text-xs">{`${token.address.substring(0,5)}...${token.address.slice(-4)}`}</span>
+                          }
+                        </div>
+                      </div>
+                      <TrashIcon className="h-5 w-5 text-purple-400" aria-hidden="true" />
                     </button>
                   )
 }               )}

@@ -86,6 +86,36 @@ export default function Liquidity() {
     isValidInput(e.target.value) && setLpAmount(e.target.value)
   }
 
+  async function addLpTokenToMetamask(lpAddress) {
+    const tokenAddress = lpAddress;
+    const tokenSymbol = `LP${pool.symbol}`;
+    const tokenDecimals = 18;
+    // const tokenImage = 'http://placekitten.com/200/300';
+
+    try {
+      const wasAdded = await ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: tokenAddress,
+            symbol: tokenSymbol,
+            decimals: tokenDecimals,
+            // image: tokenImage,
+          },
+        },
+      });
+
+      if (wasAdded) {
+        console.log('LP token added to your wallet');
+      } else {
+        console.log('Could not add LP token to your wallet');
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   async function addLiquidity(createPool) {
     const signer = new ethers.providers.Web3Provider(window.ethereum).getSigner()
     setLoading(true)
@@ -113,6 +143,7 @@ export default function Liquidity() {
 
       const exchange = new ethers.Contract(exchangeAddress, Exchange.abi, signer)
       await exchange.addLiquidity(tokenAmt, { value: bnbAmt })
+      addLpTokenToMetamask(exchangeAddress)
       setTokenAmount(0)
       setBnbAmount(0)
     } catch (e) {
@@ -154,16 +185,16 @@ export default function Liquidity() {
         <div>
           <LiquidityInput onChange={handleTokenInput} value={tokenAmount} tokenAddress={pool.address}>{pool.symbol}</LiquidityInput>
           <LiquidityInput disabled={poolAddress} onChange={handleBnbInput} value={bnbAmount} tokenAddress={0}>BNB</LiquidityInput>
-          {poolAddress ?
-            <Button disabled={checkLiquidityEnabled()} onClick={() => addLiquidity(false)}>Add liquidity</Button>
+          {poolAddress && poolAddress != 0 ?
+            <Button loading={loading} disabled={checkLiquidityEnabled()} onClick={() => addLiquidity(false)}>Add liquidity</Button>
             :
-            <Button onClick={() => addLiquidity(true)} disabled={checkLiquidityEnabled()}>Create pool</Button>
+            <Button loading={loading} onClick={() => addLiquidity(true)} disabled={checkLiquidityEnabled()}>Create pool</Button>
           }
         </div>
 
         <div>
-          <LiquidityInput onChange={handleLpInput} value={lpAmount} disabled={!poolAddress} tokenAddress={poolAddress}>LP tokens</LiquidityInput>
-          <Button disabled={!poolAddress || lpAmount == "" || loading} onClick={removeLiquidity}>Remove liquidity</Button>
+          <LiquidityInput onChange={handleLpInput} value={lpAmount} disabled={!poolAddress || poolAddress == 0} tokenAddress={poolAddress}>LP tokens</LiquidityInput>
+          <Button loading={loading} disabled={!poolAddress || lpAmount == "" || loading} onClick={removeLiquidity}>Remove liquidity</Button>
         </div>
       </MainCard>
 

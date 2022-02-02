@@ -16,6 +16,7 @@ export default function TokenBalance({ tokenAddress, className }) {
     if (!account)
       return
 
+    setBalance(undefined)
     if (tokenAddress === 0)
       getBnbBalance()
     else if (tokenAddress)
@@ -32,6 +33,11 @@ export default function TokenBalance({ tokenAddress, className }) {
   }
 
   async function getTokenBalance() {
+    if (tokenAddress == 0) {
+      setBalance(0)
+      return
+    }
+
     const token = new ethers.Contract(tokenAddress, Erc20.abi, provider)
     try {
       const _balance = ethers.utils.formatUnits(await token.balanceOf(account))
@@ -43,7 +49,7 @@ export default function TokenBalance({ tokenAddress, className }) {
 
   return (
     <span className={`${className} block text-purple-300 font-semibold sm:text-sm`}>
-      Balance: {balance ? balance.toFixed(4) : ".."}
+      Balance: {balance === 0 ? 0 : (balance ? balance.toFixed(4) : "..")}
     </span>
   )
 

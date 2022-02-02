@@ -1,6 +1,7 @@
 import '../styles/globals.css'
 import EthersProvider from "../context/EthersContext"
 import WalletButton from '../components/WalletButton';
+import Notification from '../components/Notification';
 
 function MyApp({ Component, pageProps }) {
 
@@ -8,6 +9,7 @@ function MyApp({ Component, pageProps }) {
     <EthersProvider>
       <div className="relative h-screen grid place-items-center px-2">
         <WalletButton />
+        <Notification />
         <Component {...pageProps} />
       </div>
     </EthersProvider>

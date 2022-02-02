@@ -36,7 +36,6 @@ export default function Liquidity() {
     let exchangeAddress
     try {
       exchangeAddress = await registry.getExchange(pool.address)
-      console.log(`Exchange for ${pool.symbol}: ${exchangeAddress}`)
       setPoolAddress(exchangeAddress)
     } catch (e) {
       console.log(e)
@@ -146,8 +145,10 @@ export default function Liquidity() {
       addLpTokenToMetamask(exchangeAddress)
       setTokenAmount(0)
       setBnbAmount(0)
+      setNotificationStatus({ show: true, error: false })
     } catch (e) {
       console.log(e)
+      setNotificationStatus({ show: true, error: true })
     }
     refreshRate()
     setLoading(false)
@@ -164,8 +165,10 @@ export default function Liquidity() {
       const exchange = new ethers.Contract(poolAddress, Exchange.abi, signer)
       await exchange.removeLiquidity(lps)
       setLpAmount(0)
+      setNotificationStatus({ show: true, error: false })
     } catch(e) {
       console.log(e);
+      setNotificationStatus({ show: true, error: true })
     }
     setLoading(false)
   }

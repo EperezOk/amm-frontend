@@ -26,7 +26,7 @@ export default function Home() {
   const [fromToRate, setFromToRate] = useState(0)
   const [exchangeAddress, setExchangeAddress] = useState()
 
-  const { account, isValidChain, requestAccount } = useEthers()
+  const { account, isValidChain, requestAccount, setNotificationStatus } = useEthers()
 
   function isValidInput(input) {
     const regex = /^[0-9\b,.]+$/
@@ -81,8 +81,6 @@ export default function Home() {
     try {
       const _exchangeAddress = await registry.getExchange(currency.address)
       setExchangeAddress(_exchangeAddress)
-
-      console.log(`Exchange for ${currency.symbol}: ${_exchangeAddress}`)
 
       if (_exchangeAddress == 0)
         return 0
@@ -147,10 +145,12 @@ export default function Home() {
 
       setFromValue(0)
       setToValue(0)
+      setNotificationStatus({ show: true, error: false })
     } catch (e) {
       console.log(e)
       if (e.data && e.data.message === 'execution reverted: insufficient output amount')
         console.log("Insufficient liquidity for this trade") // display notification
+      setNotificationStatus({ show: true, error: true })
     }
     refreshRate()
     setLoading(false)

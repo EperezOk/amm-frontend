@@ -12,6 +12,7 @@ export default function EthersProvider({ children }) {
 
   const [account, setAccount] = useState(null)
   const [chainId, setChainId] = useState(null)
+  const [notificationStatus, setNotificationStatus] = useState({ show: false, error: false })
   const validChainId = "0x61" // BSC testnet
 
   async function requestAccount() {
@@ -109,6 +110,8 @@ export default function EthersProvider({ children }) {
         chainId,
         setChainId,
         isValidChain,
+        notificationStatus,
+        setNotificationStatus,
       }}
     >
       {children}

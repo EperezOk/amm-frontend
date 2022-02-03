@@ -4,6 +4,7 @@ import CurrencyButton from "../components/CurrencyBtn";
 import MainCard from "../components/MainCard";
 import Modal from "../components/Modal";
 import LiquidityInput from "../components/LiquidityInput";
+import Link from "next/link";
 
 import { ethers } from "ethers";
 import Registry from "../contracts/Registry.json"
@@ -24,7 +25,7 @@ export default function Liquidity() {
   const [poolAddress, setPoolAddress] = useState() // exchange
   const [loading, setLoading] = useState(false)
 
-  const { account, isValidChain, requestAccount } = useEthers()
+  const { account, isValidChain, requestAccount, setNotificationStatus } = useEthers()
 
   const provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
 
@@ -187,7 +188,7 @@ export default function Liquidity() {
 
         <div>
           <LiquidityInput onChange={handleTokenInput} value={tokenAmount} tokenAddress={pool.address}>{pool.symbol}</LiquidityInput>
-          <LiquidityInput disabled={poolAddress} onChange={handleBnbInput} value={bnbAmount} tokenAddress={0}>BNB</LiquidityInput>
+          <LiquidityInput disabled={poolAddress > 0} onChange={handleBnbInput} value={bnbAmount} tokenAddress={0}>BNB</LiquidityInput>
           {poolAddress && poolAddress != 0 ?
             <Button loading={loading} disabled={checkLiquidityEnabled()} onClick={() => addLiquidity(false)}>Add liquidity</Button>
             :
@@ -200,6 +201,12 @@ export default function Liquidity() {
           <Button loading={loading} disabled={!poolAddress || lpAmount == "" || loading} onClick={removeLiquidity}>Remove liquidity</Button>
         </div>
       </MainCard>
+
+      <Link className="absolute bottom-0 left-0" href="/get-token">
+        <span className='hidden md:block cursor-pointer absolute bottom-4 left-4 text-purple-800 underline underline-offset-1 text-sm'>
+          Get DAI/BUSD to test the AMM
+        </span>
+      </Link>
 
       <Modal open={tokenModalOpen} setOpen={setTokenModalOpen} setSelectedToken={setPool} liquidity />
     </>

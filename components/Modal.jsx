@@ -13,12 +13,12 @@ const defaultTokenList = [
     logo: "/token-logos/bnb.svg",
   },
   {
-    address: "0xec5dcb5dbf4b114c9d0f65bccab49ec54f6a0867",
+    address: "0x1685264bF5845711A1f544df984C5611233C1b6A",
     symbol: "DAI",
     logo: "/token-logos/dai.svg",
   },
   {
-    address: "0x78867bbeef44f2326bf8ddd1941a4439382ef2a7",
+    address: "0x4552169AD309A7B915bB09B4b564d1a405B7ceF3",
     symbol: "BUSD",
     logo: "/token-logos/busd.svg",
   },

@@ -4,6 +4,7 @@ import TokenInput from "../components/TokenInput";
 import { SwitchVerticalIcon } from "@heroicons/react/outline"
 import MainCard from "../components/MainCard";
 import Button from "../components/Button";
+import Link from "next/link";
 
 import { ethers } from "ethers";
 import { useEthers } from "../context/EthersContext";
@@ -181,6 +182,12 @@ export default function Home() {
           </Button>
         }
       </MainCard>
+
+      <Link className="absolute bottom-0 left-0" href="/get-token">
+        <span className='cursor-pointer absolute bottom-4 md:left-4 text-purple-800 underline underline-offset-1 text-sm'>
+          Get DAI/BUSD to test the AMM
+        </span>
+      </Link>
       
       <Modal open={fromTokenModalOpen} setOpen={setFromTokenModalOpen} setSelectedToken={changeFromToken} />
       <Modal open={toTokenModalOpen} setOpen={setToTokenModalOpen} setSelectedToken={changeToToken} />

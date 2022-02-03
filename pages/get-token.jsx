@@ -14,6 +14,34 @@ export default function getToken() {
   const daiAddress = "0x1685264bF5845711A1f544df984C5611233C1b6A"
   const busdAddress = "0x4552169AD309A7B915bB09B4b564d1a405B7ceF3"
 
+  async function addTokenToMetamask(address) {
+    const tokenAddress = address
+    const tokenSymbol = address === daiAddress ? "DAI" : "BUSD"
+    const tokenDecimals = 18
+
+    try {
+      const wasAdded = await ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: tokenAddress,
+            symbol: tokenSymbol,
+            decimals: tokenDecimals,
+          },
+        },
+      });
+
+      if (wasAdded) {
+        console.log('LP token added to your wallet');
+      } else {
+        console.log('Could not add LP token to your wallet');
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   async function transferToken(tokenAddress) {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     const signer = new ethers.Wallet(process.env.NEXT_PUBLIC_TOKEN_WALLET, provider)
@@ -31,6 +59,7 @@ export default function getToken() {
       setNotificationStatus({ show: true, error: true })
     }
     setLoading(false)
+    addTokenToMetamask(tokenAddress)
   }
 
   return (

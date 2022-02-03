@@ -204,7 +204,7 @@ export default function Liquidity() {
 
       <Link className="absolute bottom-0 left-0" href="/get-token">
         <span className='hidden md:block cursor-pointer absolute bottom-4 left-4 text-purple-800 underline underline-offset-1 text-sm'>
-          Get DAI/BUSD to test the AMM
+          Get DAI/BUSD/BNB to test the AMM
         </span>
       </Link>
 

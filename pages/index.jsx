@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-import Modal from "../components/Modal";
+import { useState, useEffect } from "react";
 import TokenInput from "../components/TokenInput";
 import { SwitchVerticalIcon } from "@heroicons/react/outline"
 import MainCard from "../components/MainCard";
@@ -11,6 +10,13 @@ import { useEthers } from "../context/EthersContext";
 import Registry from "../contracts/Registry.json"
 import Exchange from "../contracts/Exchange.json"
 import Erc20 from "../contracts/Erc20.json"
+
+import dynamic from 'next/dynamic'
+
+const Modal = dynamic(
+  () => import('../components/Modal'),
+  { ssr: false }
+)
 
 const registryAddress = "0xDEa3108cdeeC65712606bc692A173A983435223e"
 

@@ -6,7 +6,7 @@ import Link from "next/link"
 import { ethers } from "ethers"
 import Erc20 from "../contracts/Erc20.json"
 
-export default function getToken() {
+export default function GetToken() {
 
   const { isValidChain, account, requestAccount, setNotificationStatus } = useEthers()
   const [loading, setLoading] = useState(false)

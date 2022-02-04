@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import Button from "../components/Button";
 import CurrencyButton from "../components/CurrencyBtn";
 import MainCard from "../components/MainCard";
-import Modal from "../components/Modal";
 import LiquidityInput from "../components/LiquidityInput";
 import Link from "next/link";
 
@@ -11,6 +10,13 @@ import Registry from "../contracts/Registry.json"
 import Exchange from "../contracts/Exchange.json"
 import Erc20 from "../contracts/Erc20.json"
 import { useEthers } from "../context/EthersContext";
+
+import dynamic from 'next/dynamic'
+
+const Modal = dynamic(
+  () => import('../components/Modal'),
+  { ssr: false }
+)
 
 const registryAddress = "0xDEa3108cdeeC65712606bc692A173A983435223e"
 

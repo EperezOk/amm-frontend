@@ -28,10 +28,7 @@ export default function Modal({ open, setOpen, setSelectedToken, liquidity = fal
   
   const inputRef = useRef(null)
 
-  let tokenList, setTokenList
-
-  if (typeof window !== "undefined")
-    [tokenList, setTokenList] = useLocalStorage("CustomTokens", defaultTokenList)
+  const [tokenList, setTokenList] = useLocalStorage("CustomTokens", defaultTokenList)
 
   async function handleKeyDown(e) {
     if (e.key !== "Enter")

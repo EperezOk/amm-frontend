@@ -27,6 +27,8 @@ export default function EthersProvider({ children }) {
       console.log(e)
     }
 
+    if (!provider) return
+
     const chain = (await provider.getNetwork()).chainId
     setChainId(decToHex(chain))
 
@@ -86,11 +88,7 @@ export default function EthersProvider({ children }) {
       console.log("Please install metamask to use this website");
       return;
     }
-
-    // Opens popup inmediately, which isn't the best UX
-    // requestAccount()
-
-    // Emmited when user connects, disconnects or change their current metamask account
+    
     window.ethereum.on("accountsChanged", (accounts) => {
       const address = accounts[0]
       setAccount(address)

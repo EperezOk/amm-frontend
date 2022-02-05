@@ -137,18 +137,16 @@ export default function Home() {
 
       if (fromToken.address === 0)
         await exchange.ethToTokenSwap(getMinAmount(toValue))
-      else if (toToken.address === 0) {
-        const token = new ethers.Contract(fromToken.address, Erc20.abi, signer)
-        tx = await token.approve(exchangeAddress, ethers.utils.parseEther(fromValue))
-        await tx.wait()
-        await exchange.tokenToEthSwap(ethers.utils.parseEther(fromValue), getMinAmount(toValue))
-      }
       else {
         const token = new ethers.Contract(fromToken.address, Erc20.abi, signer)
         tx = await token.approve(exchangeAddress, ethers.utils.parseEther(fromValue))
         await tx.wait()
-        await exchange.tokenToTokenSwap(ethers.utils.parseEther(fromValue), getMinAmount(toValue), toToken.address)
-      } 
+
+        if (toToken.address === 0)
+          await exchange.tokenToEthSwap(ethers.utils.parseEther(fromValue), getMinAmount(toValue))
+        else
+          await exchange.tokenToTokenSwap(ethers.utils.parseEther(fromValue), getMinAmount(toValue), toToken.address)
+      }
 
       setFromValue(0)
       setToValue(0)

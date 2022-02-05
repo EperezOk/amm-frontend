@@ -96,7 +96,6 @@ export default function Liquidity() {
     const tokenAddress = lpAddress;
     const tokenSymbol = `LP${pool.symbol}`;
     const tokenDecimals = 18;
-    // const tokenImage = 'http://placekitten.com/200/300';
 
     try {
       const wasAdded = await ethereum.request({
@@ -107,7 +106,6 @@ export default function Liquidity() {
             address: tokenAddress,
             symbol: tokenSymbol,
             decimals: tokenDecimals,
-            // image: tokenImage,
           },
         },
       });
